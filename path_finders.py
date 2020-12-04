@@ -35,25 +35,53 @@ class KnightPathFinder:
 
         valid_move_set = move_set.difference(self._considered_positions)
 
-        self._considered_positions.union(valid_move_set)
+        self._considered_positions = self._considered_positions.union(valid_move_set)
 
         return valid_move_set
 
     def build_move_tree(self):
 
-        root_moves = self.new_move_positions(self._pos)
+        # root_moves = self.new_move_positions(self._pos)
 
-        for coord in root_moves:
-            child_node = Node(coord)
-            self._root.add_child(child_node)
+        # for coord in root_moves:
+        #     child_node = Node(coord)
+        #     self._root.add_child(child_node)
+
+        que = [self._root]
+
+        while len(que) > 0:
+            current_node = que.pop(0)
+            moves = self.new_move_positions(current_node.value)
+            for move in moves:
+                child_node = Node(move)
+                current_node.add_child(child_node)
+                que.append(child_node)
+
 
 
     def find_path(self,end_position):
 
-        pass
+        end_node = self._root.breadth_search(end_position)
+
+        root_trace = self.trace_to_root(end_node)
+
+        root_trace.reverse()
+
+        return root_trace
 
     def trace_to_root(self,end_node):
-        pass
+        
+        trace = []
+
+        current_node = end_node
+
+        while current_node.parent != None:
+            trace.append(current_node.value)
+            current_node = current_node.parent
+
+        trace.append(self._root.value)
+
+        return trace
 
 
 
@@ -61,7 +89,9 @@ class KnightPathFinder:
 
 
 
-test_knight = KnightPathFinder((0,0))
-test_knight.build_move_tree()
-
-print(test_knight._root.children)
+finder = KnightPathFinder((0, 0))
+finder.build_move_tree()
+print(finder.find_path((2, 1))) # => [(0, 0), (2, 1)]
+print(finder.find_path((3, 3))) # => [(0, 0), (2, 1), (3, 3)]
+print(finder.find_path((6, 2))) # => [(0, 0), (1, 2), (2, 4), (4, 3), (6, 2)]
+print(finder.find_path((7, 6))) # => [(0, 0), (1, 2), (2, 4), (4, 3), (5, 5), (7, 6)]
